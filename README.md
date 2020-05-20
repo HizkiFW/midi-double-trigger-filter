@@ -1,5 +1,8 @@
-# [midi-double-trigger-filter](https://github.com/giosad/midi-double-trigger-filter)
+# midi-double-trigger-filter
+
 Processes MIDI events from a controller to filter note-on events caused by unintended double triggering.
+
+This version is forked from [the original by giosad](https://github.com/giosad/midi-double-trigger-filter), and adds some more fixes for my Yamaha P85 keyboard.
 
 Confirmed to work with MPD218 in Win10 and macOs.
 

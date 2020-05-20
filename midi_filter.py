@@ -26,6 +26,7 @@ class MIDIFilter:
         CHANNEL_COUNT = 16
         NOTES_COUNT = 128
         self._notes_on_times = [[0]*NOTES_COUNT]*CHANNEL_COUNT
+        self._notes_on_states = [[False]*NOTES_COUNT]*CHANNEL_COUNT
         self.enabled = True
         self.min_delay = 0.06 # in seconds
         self.min_velocity = 40
@@ -74,13 +75,30 @@ class MIDIFilter:
             note_on = False
             delta = 0
             NOTE_ON = 0x90
+            NOTE_OFF = 0x80
             COMMAND_MASK = 0xF0
             CHANNEL_MASK = 0x0F
             note_on = (msg[0] & COMMAND_MASK) == NOTE_ON
-
-            if note_on:
+            note_off = (msg[0] & COMMAND_MASK) == NOTE_OFF
+            
+            channel = None
+            note = None
+            
+            if note_on or note_off:
                 channel = msg[0] & CHANNEL_MASK
                 note = msg[1]
+
+            if note_off or (note_on and msg[2] == 0):
+                if self._notes_on_states[channel][note]:
+                    debug_log('Note {} OFF'.format(msg[1]))
+                self._notes_on_states[channel][note] = False
+
+            if note_on and msg[2] > 0:
+                skip = self._notes_on_states[channel][note]
+                self._notes_on_states[channel][note] = True
+                if not skip:
+                    debug_log('Note {} ON'.format(msg[1]))
+                
                 velocity = msg[2]
                 delta = ctime - self._notes_on_times[channel][note]
 
